@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { SimplePokemon } from '../interfaces/pokemonInterface'
 import { Text, View, TouchableOpacity, StyleSheet, Dimensions, Image } from 'react-native';
 import { FadeInImage } from './FadeInImage';
+import ImageColors from 'react-native-image-colors'
 
 const windowWith = Dimensions.get('window').width
 
@@ -10,6 +11,29 @@ interface Props {
 }
 
 export const PokemonCard = ({ pokemon }: Props) => {
+
+    const [ bgColor, setBgColor] = useState('grey')
+
+    const isMounted = useRef(true)
+
+    useEffect( () => {
+
+        ImageColors.getColors( pokemon.picture, { fallback: 'grey'} )
+            .then( colors => {
+
+                if ( !isMounted.current ) return
+                    
+                ( colors.platform === 'ios' )
+                    ? setBgColor( colors.primary || 'grey' )
+                    : setBgColor( colors.dominant || 'grey' )
+
+            })
+        
+        // si el componente esta desmontado evita settear el color
+        return () => { isMounted.current = false }
+
+    }, [])
+    
     return (
         <TouchableOpacity
             activeOpacity={ 0.9 }
@@ -17,6 +41,7 @@ export const PokemonCard = ({ pokemon }: Props) => {
             <View style={{ 
                 ...styles.cardContainer,
                 width: windowWith * 0.4,
+                backgroundColor: bgColor,
             }}>
                 {/* Nombre del pokemon y ID */}
                 <View>
@@ -46,7 +71,7 @@ export const PokemonCard = ({ pokemon }: Props) => {
 const styles = StyleSheet.create({
     cardContainer: {
         marginHorizontal: 10,
-        backgroundColor: 'red',
+        // backgroundColor: 'grey',
         height: 120,
         width: 160,
         marginBottom: 25,
