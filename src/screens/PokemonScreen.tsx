@@ -1,10 +1,12 @@
 import React from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { StackScreenProps } from '@react-navigation/stack';
 import { RootStackParams } from '../navigator/Navigator';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { FadeInImage } from '../components/FadeInImage';
+import { usePokemon } from '../hooks/usePokemon';
+import { PokemonDetails } from '../components/PokemonDetails';
 
 // @param RootStackParams es el tipo de props que son
 // @param 'PokemonScreen' la pantalla en la que me encuentro
@@ -19,9 +21,13 @@ export const PokemonScreen = ( { navigation, route }: Props) => {
 
     const { top } = useSafeAreaInsets()
 
+    const { isLoading, pokemon } = usePokemon( id )
+
+    console.log( pokemon )
+
     
     return (
-        <View>
+        <View style={{ flex: 1 }}>
             {/* Header Container */}
             <View
                 style={{
@@ -65,6 +71,21 @@ export const PokemonScreen = ( { navigation, route }: Props) => {
                     style={ styles.pokemonImage }
                 />
             </View>
+
+
+            {/* Detalles y Loading */}
+            {
+                isLoading 
+                    ? (
+                        <View style={ styles.loadingIndicator }>
+                            <ActivityIndicator
+                                color={ color }
+                                size={ 50 }
+                            />
+                        </View>
+                    )
+                    : <PokemonDetails pokemon={ pokemon }/>
+            }
         </View>
     )
     
@@ -99,5 +120,10 @@ const styles = StyleSheet.create({
         height: 250,
         position: 'absolute',
         bottom: -15,
+    },
+    loadingIndicator: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
     }
 });
